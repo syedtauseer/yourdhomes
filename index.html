@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Home | Premium Real Estate Portal</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              500: '#d97706',
+              600: '#ca8a04',
+              700: '#b45309',
+              800: '#92400e',
+              900: '#78350f',
+            },
+            amberAccent: '#e05638',
+            amberAccentHover: '#c84428',
+            warmDark: '#1e293b',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-amberAccent selection:text-white">
+
+  <!-- ========================================== -->
+  <!--               GLOBAL HEADER                -->
+  <!-- ========================================== -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        
+        <!-- Logo -->
+        <div class="flex items-center gap-3 cursor-pointer select-none" onclick="app.navigateTo('listings')" id="headerLogo">
+          <div class="w-11 h-11 rounded-xl bg-amberAccent flex items-center justify-center text-white shadow-md shadow-amberAccent/30 transition-transform active:scale-95">
+            <i data-lucide="home" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <span class="text-2xl font-extrabold tracking-tight text-slate-900 block leading-none">Your<span class="text-amberAccent">Home</span></span>
+            <span class="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">Real Estate Portal</span>
+          </div>
+        </div>
+
+        <!-- Mode Indicator / Navigation -->
+        <div class="flex items-center gap-3 sm:gap-6">
+          <div id="customerHeaderNav" class="flex items-center gap-2 sm:gap-4">
+            <button onclick="app.navigateTo('listings')" id="navLinkListings" class="px-3 py-2 text-sm font-semibold text-amberAccent border-b-2 border-amberAccent transition-colors">
+              Properties
+            </button>
+            <button onclick="app.navigateTo('aboutOwner')" id="navLinkAboutOwner" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+              Owner Info
+            </button>
+          </div>
+
+          <!-- Active Owner Mode Badge (Only visible when logged into Owner View) -->
+          <div id="ownerActiveBadge" class="hidden items-center gap-2 bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1.5 rounded-full border border-amber-200">
+            <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
+            Owner Mode Active
+          </div>
+
+          <!-- Secret Owner Portal Login Trigger -->
+          <button onclick="app.openLoginModal()" class="p-2 text-slate-400 hover:text-slate-700 transition-colors rounded-lg hover:bg-slate-100" title="Owner Access">
+            <i data-lucide="key-round" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!--             VIEW 1: CUSTOMER PORTAL        -->
+  <!-- ========================================== -->
+  <main id="customerView" class="flex-grow">
+    
+    <!-- Hero & Search Banner -->
+    <section class="relative bg-slate-900 text-white py-12 px-4 sm:px-6 lg:px-8 bg-cover bg-center" style="background-image: linear-gradient(to right, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80');">
+      <div class="max-w-5xl mx-auto text-center">
+        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4">
+          Find Your Dream Property
+        </h1>
+        <p class="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto mb-8">
+          Browse verified residential and commercial properties available directly from the owner.
+        </p>
+
+        <!-- Search & Filter Card -->
+        <div class="bg-white/95 backdrop-blur border border-slate-200 text-slate-800 p-4 sm:p-6 rounded-2xl shadow-2xl max-w-4xl mx-auto">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
+            
+            <!-- Location/Keyword search -->
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Search Keyword</label>
+              <div class="relative">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+                <input type="text" id="filterKeyword" oninput="app.renderProperties()" placeholder="City, Area, Title..." class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amberAccent focus:outline-none">
+              </div>
+            </div>
+
+            <!-- Property Type -->
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Purpose / Type</label>
+              <select id="filterType" onchange="app.renderProperties()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amberAccent focus:outline-none bg-white">
+                <option value="all">All Types</option>
+                <option value="Buy">For Sale</option>
+                <option value="Rent">For Rent</option>
+              </select>
+            </div>
+
+            <!-- Max Budget -->
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Max Budget (₹)</label>
+              <select id="filterBudget" onchange="app.renderProperties()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amberAccent focus:outline-none bg-white">
+                <option value="all">Any Price</option>
+                <option value="5000000">Up to ₹50 Lakhs</option>
+                <option value="10000000">Up to ₹1 Crore</option>
+                <option value="25000000">Up to ₹2.5 Crores</option>
+                <option value="50000000">Up to ₹5 Crores</option>
+              </select>
+            </div>
+
+            <!-- BHK Filter -->
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Bedrooms (BHK)</label>
+              <select id="filterBhk" onchange="app.renderProperties()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amberAccent focus:outline-none bg-white">
+                <option value="all">Any BHK</option>
+                <option value="1">1 BHK</option>
+                <option value="2">2 BHK</option>
+                <option value="3">3 BHK</option>
+                <option value="4">4+ BHK</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LISTINGS CONTAINER TAB -->
+    <section id="tabListings" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Featured Properties</h2>
+          <p class="text-slate-500 text-sm">Explore handpicked properties with complete photo tours</p>
+        </div>
+        <div id="propertyCountBadge" class="text-sm font-semibold bg-slate-100 text-slate-700 px-3 py-1 rounded-full border border-slate-200">
+          Loading properties...
+        </div>
+      </div>
+
+      <!-- Properties Grid -->
+      <div id="propertiesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Rendered Dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- ABOUT OWNER TAB (Customer-facing view of owner details) -->
+    <section id="tabAboutOwner" class="hidden max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+        <div class="flex flex-col sm:flex-row items-center gap-6 border-b border-slate-100 pb-8 mb-8">
+          <div class="w-24 h-24 rounded-2xl bg-slate-100 border-2 border-amberAccent/20 flex items-center justify-center text-amberAccent font-bold text-3xl shadow-inner">
+            <span id="ownerInitials">OH</span>
+          </div>
+          <div class="text-center sm:text-left">
+            <span class="inline-block px-3 py-1 bg-amber-50 text-amber-800 text-xs font-semibold rounded-full border border-amber-200 mb-2">Verified Property Owner</span>
+            <h2 id="displayOwnerName" class="text-2xl font-bold text-slate-900">Owner Name</h2>
+            <p id="displayOwnerEmail" class="text-slate-500 text-sm">owner@example.com</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-start gap-4">
+            <div class="p-3 bg-emerald-100 text-emerald-700 rounded-xl">
+              <i data-lucide="phone-call" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <p class="text-xs font-bold uppercase text-slate-400">Direct Contact & WhatsApp</p>
+              <p id="displayOwnerPhone" class="text-lg font-bold text-slate-800">+91 98765 43210</p>
+              <a id="displayOwnerWhatsappLink" href="#" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 mt-1">
+                <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Chat on WhatsApp
+              </a>
+            </div>
+          </div>
+
+          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-start gap-4">
+            <div class="p-3 bg-amber-100 text-amberAccent rounded-xl">
+              <i data-lucide="map-pin" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <p class="text-xs font-bold uppercase text-slate-400">Office / Location</p>
+              <p id="displayOwnerAddress" class="text-base font-semibold text-slate-800">123 Real Estate Hub, Main City Center</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-base font-bold text-slate-900 mb-2">About the Property Owner</h3>
+          <p id="displayOwnerBio" class="text-slate-600 leading-relaxed text-sm bg-slate-50 p-4 rounded-xl border border-slate-100">
+            Welcome to Your Home portal! I directly manage all properties listed here to provide authentic details, seamless site visits, and direct negotiations without brokerage hassles.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!--             VIEW 2: OWNER DASHBOARD        -->
+  <!-- ========================================== -->
+  <main id="ownerView" class="hidden flex-grow bg-slate-100">
+    
+    <!-- Owner Top Dashboard Navigation -->
+    <div class="bg-slate-900 text-white shadow-md">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between py-4 border-b border-slate-800 gap-4">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-amberAccent text-white rounded-lg">
+              <i data-lucide="shield-check" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h1 class="text-lg font-bold">Owner Control Panel</h1>
+              <p class="text-xs text-slate-400">Manage listings, customer leads, profile, and security</p>
+            </div>
+          </div>
+          <button onclick="app.exitOwnerPortal()" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition-colors w-fit">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Exit Owner Portal
+          </button>
+        </div>
+
+        <!-- Owner Workspace Tabs -->
+        <div class="flex overflow-x-auto space-x-1 sm:space-x-4 py-3 text-sm font-medium custom-scrollbar">
+          <button onclick="app.switchOwnerTab('leads')" id="ownerTabBtnLeads" class="px-4 py-2 rounded-xl bg-amberAccent text-white font-bold flex items-center gap-2 transition-all">
+            <i data-lucide="users" class="w-4 h-4"></i> Captured Customer Leads
+            <span id="badgeLeadsCount" class="bg-white/20 text-white px-2 py-0.5 rounded-full text-xs">0</span>
+          </button>
+
+          <button onclick="app.switchOwnerTab('manageProps')" id="ownerTabBtnManageProps" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition-all">
+            <i data-lucide="building" class="w-4 h-4"></i> Property Listings
+          </button>
+
+          <button onclick="app.switchOwnerTab('profile')" id="ownerTabBtnProfile" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition-all">
+            <i data-lucide="user-cog" class="w-4 h-4"></i> Profile & Password
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      
+      <!-- OWNER TAB 1: CAPTURED LEADS -->
+      <section id="ownerTabLeads" class="space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Captured Customer Details</h2>
+            <p class="text-xs text-slate-500 mt-1">Automatically recorded whenever a buyer views more than 2 photos or submits a property inquiry.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="app.exportLeadsCSV()" class="px-3 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg border border-emerald-200 text-xs font-semibold flex items-center gap-1.5 transition-colors">
+              <i data-lucide="download" class="w-4 h-4"></i> Export CSV
+            </button>
+            <button onclick="app.clearAllLeads()" class="px-3 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-lg border border-rose-200 text-xs font-semibold flex items-center gap-1.5 transition-colors">
+              <i data-lucide="trash-2" class="w-4 h-4"></i> Clear All Leads
+            </button>
+          </div>
+        </div>
+
+        <!-- Leads Table -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-bold">
+                <tr>
+                  <th class="px-6 py-4">Customer Name</th>
+                  <th class="px-6 py-4">Phone / WhatsApp</th>
+                  <th class="px-6 py-4">Email</th>
+                  <th class="px-6 py-4">Property Interested</th>
+                  <th class="px-6 py-4">Query / Message</th>
+                  <th class="px-6 py-4">Date Captured</th>
+                  <th class="px-6 py-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="leadsTableBody" class="divide-y divide-slate-100">
+                <!-- JS populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- OWNER TAB 2: MANAGE PROPERTIES -->
+      <section id="ownerTabManageProps" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Property Listings Management</h2>
+            <p class="text-xs text-slate-500">Add new properties or update existing ones</p>
+          </div>
+          <button onclick="app.openPropertyModal()" class="px-4 py-2 bg-amberAccent hover:bg-amberAccentHover text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-colors">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i> Add New Property
+          </button>
+        </div>
+
+        <!-- Owner Property List Table -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-bold">
+                <tr>
+                  <th class="px-6 py-4">Property Title</th>
+                  <th class="px-6 py-4">Type</th>
+                  <th class="px-6 py-4">Price (₹)</th>
+                  <th class="px-6 py-4">Location</th>
+                  <th class="px-6 py-4">Specs</th>
+                  <th class="px-6 py-4">Photos</th>
+                  <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ownerPropertyListBody" class="divide-y divide-slate-100">
+                <!-- JS populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- OWNER TAB 3: PROFILE & SECURITY -->
+      <section id="ownerTabProfile" class="hidden max-w-3xl mx-auto">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-8">
+          
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Owner Profile & Contact Setup</h2>
+            <p class="text-xs text-slate-500">This information will be displayed to customers in the "About Owner" section and WhatsApp chat links.</p>
+          </div>
+
+          <form id="ownerProfileForm" onsubmit="app.saveOwnerProfile(event)" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Full Name</label>
+                <input type="text" id="inputOwnerName" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amberAccent focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">WhatsApp / Contact Phone</label>
+                <input type="text" id="inputOwnerPhone" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amberAccent focus:outline-none" placeholder="+91 98765 43210">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Email Address</label>
+                <input type="email" id="inputOwnerEmail" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amberAccent focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Office / Address</label>
+                <input type="text" id="inputOwnerAddress" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amberAccent focus:outline-none">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Owner Bio / Description</label>
+              <textarea id="inputOwnerBio" rows="3" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amberAccent focus:outline-none"></textarea>
+            </div>
+
+            <div class="pt-2">
+              <button type="submit" class="px-5 py-2.5 bg-amberAccent hover:bg-amberAccentHover text-white rounded-xl text-xs font-bold shadow-sm transition-colors">
+                Save Profile Details
+              </button>
+            </div>
+          </form>
+
+          <hr class="border-slate-200">
+
+          <!-- Password Change Section -->
+          <div>
+            <h3 class="text-base font-bold text-slate-900 mb-1">Change Owner Login Password</h3>
+            <p class="text-xs text-slate-500 mb-4">Update your password to keep the Owner Control Panel secure.</p>
+
+            <form id="ownerPasswordForm" onsubmit="app.changePassword(event)" class="space-y-4 max-w-md">
+              <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Current Password</label>
+                <input type="password" id="inputCurrentPassword" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amberAccent focus:outline-none">
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">New Password</label>
+                <input type="password" id="
